@@ -1,6 +1,6 @@
 var express = require('express')
 var SSE = require('express-sse')
-var sse = new SSE(["array", "containing", "initial", "content", "(optional)"]);
+var sse = new SSE([]);
 
 //console.log(sse)
 var data = [
@@ -31,6 +31,6 @@ function charts() {
   setTimeout(() => {
       console.log(sse)
       sse.send(data);
-    }, 5000);
+    }, 6000);
   sse.send(data);
 }
