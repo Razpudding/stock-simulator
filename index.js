@@ -26,7 +26,20 @@ var data = [
     close: '5',
     amount: '10'
   },
-
+  {
+    id: '4',
+    title: 'The second stock',
+    date: moment().add(2,'days').format('DD-MMM-YY'),
+    close: '25',
+    amount: '10'
+  },
+  {
+    id: '4',
+    title: 'The second stock',
+    date: moment().add(4,'days').format('DD-MMM-YY'),
+    close: '10',
+    amount: '10'
+  },
 ]
 
 express()
@@ -45,4 +58,8 @@ function charts(req,res){
   console.log("Sending initial data")
   sse.init(req,res)
   sse.send(data);
+  
+  setTimeout(() => {
+      sse.send({date: moment().add(5,'days').format('DD-MMM-YY'), close: 40}, "tick");
+  }, 5000);
 }
