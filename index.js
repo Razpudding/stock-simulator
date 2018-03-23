@@ -26,27 +26,23 @@ var data = [
     close: '5',
     amount: '10'
   },
-  
+
 ]
 
 express()
   .use(express.static('static'))
   .get('/', home)
-  .get('/charts', sse.init)
   .get('/charts', charts)
   .listen(8000)
 
+//Send home.html
 function home(req, res, next){
-  console.log("sending home")
   res.sendFile(path.join(__dirname + '/static/home.html'));
-   setTimeout(() => {
-      console.log(sse)
-      sse.send(data);
-    }, 2000);
 }
 
-
-function charts() {
-  console.log("loading charts")
+//Initialise server-sent-events and send the initial data
+function charts(req,res){
+  console.log("Sending initial data")
+  sse.init(req,res)
   sse.send(data);
 }
