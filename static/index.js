@@ -26,7 +26,8 @@ es.addEventListener("tick", function (event) {
 function clean(item){
   //console.log("cleaning", item)
   let parseTime = d3.timeParse("%d-%b-%y")
-  item.date = parseTime(item.date)
+  item.date = new Date(item.date)
+  //item.date = parseTime(item.date)
   item.close = Number(item.close)
   console.log(item)
   return item
