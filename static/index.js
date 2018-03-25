@@ -4,11 +4,14 @@
 
 let es = new EventSource('/charts')
 let stockData = [] 
+let running = false   //Ensure the setup is only performed once
 console.log("loaded")
 
 es.onmessage = function (event) {
+  if (running)  return
   JSON.parse(event.data).forEach(d => stockData.push(clean(d)))
   drawGraph(stockData)
+  running = true;
 }
 
 es.addEventListener("tick", function (event) {
@@ -16,7 +19,6 @@ es.addEventListener("tick", function (event) {
   stockData.push(clean(JSON.parse(event.data)))
   console.log(stockData)
   update()
-
 })
 
 function clean(item){
@@ -35,7 +37,7 @@ let line //Global so update can reach it
 function drawGraph(data){
   //console.log(data[0])
   let svg = d3.select("svg")
-  let margin = {top: 0, right: 20, bottom: 30, left: 50}
+  let margin = {top: 0, right: 20, bottom: 30, left: 150}
   let width = window.innerWidth - margin.left - margin.right 
   let height = window.innerHeight * 0.8
   
@@ -44,54 +46,70 @@ function drawGraph(data){
   g = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")")  
 
   x = d3.scaleTime()
-      .rangeRound([0, width])
+  .rangeRound([0, width - 200]) //TODO: fixx padding so the line doesnt run till the right border
 
   y = d3.scaleLinear()
-      .rangeRound([height, 0])
+  .rangeRound([height - 50, 0])
 
   line = d3.line()
-      .x(function(d) { return x(d.date) })
-      .y(function(d) { return y(d.avg) })
+  .x(function(d) { return x(d.date) })
+  .y(function(d) { return y(d.avg) })
 
   x.domain(d3.extent(data, function(d) { return d.date }))
   y.domain(d3.extent(data, function(d) { return d.avg }))
 
   g.append("g")
-      .attr("transform", "translate(0," + height + ")")
-      .attr("class", "x axis")
-      .call(d3.axisBottom(x))
+    .attr("transform", "translate(0," + height + ")")
+    .attr("class", "x axis")
+   .call(d3.axisBottom(x))
 
   g.append("g")
       .attr("class", "y axis")
       .call(d3.axisLeft(y))
     .append("text")
-      .attr("fill", "#000")
+      .attr("fill", "#fff")
       .attr("transform", "rotate(-90)")
       .attr("y", 6)
       .attr("dy", "0.71em")
       .attr("text-anchor", "end")
       .text("Price ($)")
+    
+  let ticks = d3.selectAll('g.tick > text')
+    .attr('font-size', 15)
+    .attr('fill', "red")
 
   g.append("path")
-      .datum(data)
-      .attr("fill", "none")
-      .attr("stroke", "green")
-      .attr("stroke-linejoin", "round")
-      .attr("stroke-linecap", "round")
-      .attr("stroke-width", 3.5)
-      .attr("class", "line")
-      .attr("d", line)
+    .datum(data)
+    .attr("fill", "none")
+    .attr("stroke", "green")
+    .attr("stroke-linejoin", "round")
+    .attr("stroke-linecap", "round")
+    .attr("stroke-width", 3.5)
+    .attr("class", "line")
+    .attr("d", line)
 }
 
 function update() {
   //console.log("updating line")
+  if (stockData.length > 100) stockData.shift()
   const svg = d3.select("svg")
-  x.domain(d3.extent(stockData, function(d) { return d.date }))
+  let minDate = d3.min(stockData, function(d) { return d.date.getTime() })
+  let maxDate = d3.max(stockData, function(d) { return d.date.getTime() })
+  let padding = (maxDate - minDate) * .05
+  x.domain([minDate, maxDate + padding]);
+  //console.log(x.domain())
   y.domain(d3.extent(stockData, function(d) { return d.avg }))
-  svg.select(".line")
-    .attr("d", line(stockData));
+  
   svg.select(".x.axis") // change the x axis
     .call(d3.axisBottom(x))
   svg.select(".y.axis") // change the y axis
     .call(d3.axisLeft(y))
+  svg.select('g.tick > text')
+    .attr('font-size', 15)
+    .attr('fill', "red")
+  svg.select(".line")
+    .transition()
+    .duration(500)
+    .ease(d3.easeLinear)
+    .attr("d", line(stockData))
 }

@@ -1,11 +1,13 @@
 * { box-sizing: border-box }
 
 body {
-  font-family: sans-serif;
-  background: #e07070;
+  /*font-family: sans-serif;*/
+  font-family: "Trebuchet MS";
+/*  background: #e07070;*/
+  background: #000;
   color: white;
   font-size: 3em;
-  margin: 0 auto
+  margin: 0 auto;
 }
 
 a {
@@ -15,6 +17,22 @@ a {
 .stat{
   float:left;
   margin-left: 5%;
+  width: 10%;
+  text-align: left;
+}
+
+.red {
+  color: red;
+}
+
+.green {
+  color: green;
+}
+
+.tick > text {
+  stroke: red;
+  font-size: 20px;
+  fill: red;
 }
 
 label, input, textarea, button { margin: 1em 0 }
@@ -23,7 +41,7 @@ input, textarea, button {
   font-size: 1em;
   padding: 0.5em;
   border-width: 0;
-  border-radius: 0.25em
+  border-radius: 0COCKC.25em
 }
 
 input, textarea { width: 100% }
