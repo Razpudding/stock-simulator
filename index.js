@@ -2,44 +2,74 @@
 * Created by: Laurens (github.com/razpudding)
 */
 
-var express = require('express')
-var path = require('path');
-var SSE = require('express-sse')
-var moment = require('moment')
-var sse = new SSE([]);
+const express = require('express')
+const path = require('path');
+const SSE = require('express-sse')
+const moment = require('moment')
+const sse = new SSE([]);
 
-var data = [
+const config = {
+  tickInterval : 100,
+  upTick: 1.03,
+  downTick: 1.10,
+}
+
+let data = [
   {
+    beer: 0,
+    wine: 5,
+    cocktail: 10,
     date: moment().add(-1,'days'),
-    close: '5',
+    avg: '5',
+    bitcoin: 10,
   },
   {
+    beer: 10,
+    wine: 15,
+    cocktail: 20,
     date: moment().add(0,'days'),
-    close: '15',
+    avg: '15',
   },
   {
+    beer: 0,
+    wine: 5,
+    cocktail: 10,
     date: moment().add(1,'days'),
-    close: '5',
+    avg: '5',
   },
   {
+    beer: 20,
+    wine: 25,
+    cocktail: 30,
     date: moment().add(2,'days'),
-    close: '25',
+    avg: '25',
   },
   {
+    beer: 5,
+    wine: 10,
+    cocktail: 15,
     date: moment().add(3,'days'),
-    close: '10',
+    avg: '10',
+    bitcoin: 10,
   },
 ]
 
 express()
   .use(express.static('static'))
   .get('/', home)
+  .get('/stats', stats)
   .get('/charts', charts)
   .listen(8000)
 
 //Send home.html
-function home(req, res, next){
+function home(req, res){
   res.sendFile(path.join(__dirname + '/static/home.html'));
+}
+
+//Send stats.html
+function stats(req, res){
+  console.log("serving stats")
+  res.sendFile(path.join(__dirname + '/static/stats.html'));
 }
 
 //Initialise server-sent-events and send the initial data
@@ -48,28 +78,49 @@ function charts(req,res){
   sse.init(req,res)
   sse.send(data);
   //Start the trend generator
-  trendGenerator()
+  try {
+    trendGenerator()
+  }
+  catch(error){
+    console.log(error)
+  }
 }
 
+let trend  //Initialise trend
 //This function will generate a trend and send the next "tick" of data.
 // TODO: Add major events (that will cause a collapse or sprint of 20-70%)
 //       Make the actual growth percentage semi-random for more natural patterns
 function trendGenerator(type){
-  let trend = "up"
+  if (trend) { throw 'Error: Already running a simulation'; }
+  trend = "up"
+  console.log("trend already running")
   setInterval(() => {
-      let date = data[data.length -1].date.add(1,'days')
-      let close = +data[data.length -1].close
-      if (Math.random() < .5 ){ //About 3/10 loops will trigger a reroll for the trend
-        //console.log("trendSwitch?", trend)
-        trend = Math.random() < .3 ? "down" : "up"  //70% chance the stock will go up
-      }
-      if (trend == "up"){
-        close *= 1.03
-      }
-      else {
-        close /= 1.1
-      }
-      data.push({"date": date, "close": close})
+      let last = data[data.length -1]
+      let tick = {}
+
+      tick.date = last.date.add(1,'days')
+
+      tick.beer = getTickValue(+last.beer)
+      tick.wine = getTickValue(+last.wine)
+      tick.cocktail = getTickValue(+last.cocktail)
+      tick.bitcoin = getTickValue(+last.bitcoin)
+      tick.avg = Math.round((tick.beer + tick.wine + tick.cocktail)/3)
+
+      data.push(tick)
       sse.send(data[data.length -1], "tick");
-  }, 1000);
+  }, config.tickInterval);
+}
+
+function getTickValue(close){
+  if (Math.random() < .3 ){ //About 3/10 loops will trigger a reroll for the trend
+    //console.log("trendSwitch?", trend)
+    trend = Math.random() < .2 ? "down" : "up"  //80% chance the stock will go up
+  }
+  if (trend == "up"){
+    close *= config.upTick
+  }
+  else {
+    close /= config.downTick
+  }
+  return Math.round(close * 10) / 10  //Do this to round to one decimal
 }

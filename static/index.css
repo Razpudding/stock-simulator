@@ -12,6 +12,11 @@ a {
   color: lime
 }
 
+.stat{
+  float:left;
+  margin-left: 5%;
+}
+
 label, input, textarea, button { margin: 1em 0 }
 
 input, textarea, button {
