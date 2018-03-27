@@ -12,6 +12,7 @@ const config = {
   tickInterval : 500,
   upTick: 3,
   downTick: 10,
+  historyLength: 100,
 }
 
 let data = [
@@ -76,7 +77,7 @@ function stats(req, res){
 function charts(req,res){
   console.log("Sending initial data")
   sse.init(req,res)
-  sse.send(data);
+  sse.send(data.slice(data.length - config.historyLength));
   //Start the trend generator
   try {
     trendGenerator()
