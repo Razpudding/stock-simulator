@@ -14,11 +14,13 @@ a {
   color: lime
 }
 
+.wrapper {
+  display: flex;
+  flex-wrap: wrap;
+}
+
 .stat{
-  float:left;
-  margin-left: 5%;
-  width: 10%;
-  text-align: left;
+  margin-right: 2em;
 }
 
 .red {

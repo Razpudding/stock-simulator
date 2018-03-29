@@ -9,6 +9,9 @@ es.onmessage = function (event) {
 	if(running) return
 	console.log("once")
 	last = JSON.parse(event.data)[0]
+	let sectionWrapper = document.createElement('article')
+	sectionWrapper.classList.add('wrapper')
+	document.body.appendChild(sectionWrapper)
 	for (stat in last){
 		if (stat == "date" || stat == "avg") continue
 		let sectionEl = document.createElement('section')
@@ -19,7 +22,7 @@ es.onmessage = function (event) {
 		pEl.id = stat
 		pEl.textContent ="฿" +  last[stat]
 		
-		document.body.appendChild(sectionEl)
+		sectionWrapper.appendChild(sectionEl)
 		sectionEl.appendChild(h2El)
 		sectionEl.appendChild(pEl)
 	}

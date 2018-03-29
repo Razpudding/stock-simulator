@@ -17,6 +17,7 @@ I'm building this project off of my coworkers 'simple-server' project [documente
 5. Write logic that analyses client-side the stock changes (done)
 6. Send absolute stats about stock patterns to client (this will result in +/- % info) (done)
 7. Add way to manipulate trend through secure client side input
+8. Have stock-trends be divergent and semi-independent.
 7. Have the stock graph update on a rolling window (prob about 1 hour) (done!)
 9. Add colors, standard messages (done, altough I don't remember what I meant by standard messages 🤔)
 10. Create login, protect system
