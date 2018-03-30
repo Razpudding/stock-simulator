@@ -3,13 +3,14 @@
 */
 
 const express = require('express')
+var bodyParser = require('body-parser')
 const path = require('path');
 const SSE = require('express-sse')
 const moment = require('moment')
 const sse = new SSE([]);
 
 const config = {
-  tickInterval : 5000,
+  tickInterval : 500,
   upTick: 3,
   downTick: 10,
   historyLength: 100,
@@ -18,29 +19,42 @@ const config = {
 let data = [
   {
     stocks: [
-      {name:"beer", close:0, trend:"up"},
+      {name:"beer", close:1, trend:"up"},
       {name:"wine", close:5, trend:"up"},
       {name:"cocktail", close:10, trend:"up"},
-      {name:"bitcoin", close:10, trend:"up"}],
+      {name:"love", close:10, trend:"up"},
+      {name:"oil", close:12, trend:"up"},
+      {name:"paarden", close:8, trend:"up"},
+      {name:"egocentrism", close:10, trend:"up"}],
     date: moment().add(-1,'minutes'),
     avg: '7.5',
   },
   {
     stocks: [
-      {name:"beer", close:10, trend:"up"},
-      {name:"wine", close:15, trend:"up"},
-      {name:"cocktail", close:20, trend:"up"},
-      {name:"bitcoin", close:15, trend:"up"}],
+      {name:"beer", close:2, trend:"up"},
+      {name:"wine", close:7, trend:"up"},
+      {name:"cocktail", close:8, trend:"up"},
+      {name:"love", close:11, trend:"up"},
+      {name:"oil", close:14, trend:"up"},
+      {name:"paarden", close:12, trend:"up"},
+      {name:"egocentrism", close:15, trend:"up"}],
     date: moment().add(0,'minutes'),
     avg: '15',
   },
 ]
 
+let manips = {
+  "beer": false
+}
+
 express()
   .use(express.static('static'))
+  .use(bodyParser.urlencoded({extended: true}))
   .get('/', home)
   .get('/stats', stats)
   .get('/charts', charts)
+  .get('/change', changePage)
+  .post('/', changeData)
   .listen(8000)
 
 //Send home.html
@@ -48,6 +62,24 @@ function home(req, res){
   res.sendFile(path.join(__dirname + '/static/home.html'));
 }
 
+//Send home.html
+function changePage(req, res){
+  res.sendFile(path.join(__dirname + '/static/change.html'));
+}
+
+function changeData(req,res)
+{
+  let input = req.body
+  console.log(input)
+  manips[input.name] = input.trend
+  console.log(manips)
+  //TODO: finish this functionality. It should work something like this:
+  // simple version: follow trend for var ticks or seconds
+  // better version: follow trend until %change has been reached
+  // Improve frontend so it will allow for more elaborate manipulations.
+  // Add a secret code to .env that needs to be entered every time manip is done
+  // Also the add button shouldnt try to route away from the page
+}
 //Send stats.html
 function stats(req, res){
   console.log("serving stats")
@@ -74,8 +106,7 @@ let trend  //Initialise trend
 //       Make the actual growth percentage semi-random for more natural patterns
 function trendGenerator(type){
   if (trend) { throw 'Error: Already running a simulation'; }
-  trend = "up"
-  console.log("trend already running")
+  trend = "up"  //TODO: old functionality, change the name
   setInterval(() => {
       let last = data[data.length -1]
       let tick = {}
@@ -83,22 +114,22 @@ function trendGenerator(type){
       tick.date = last.date.add(1,'minutes')
 
       tick.stocks = last.stocks.map(stock => getTickValue(stock))
-      console.log("stocks", tick.stocks)
-      //tick.beer = getTickValue(+last.beer)
-      //tick.wine = getTickValue(+last.wine)
-      //tick.cocktail = getTickValue(+last.cocktail)
-      //tick.bitcoin = getTickValue(+last.bitcoin)
+      console.log("tick", tick.stocks)
+
       let sum = 0;
       tick.stocks.forEach(stock => sum+= stock.close)
       tick.avg = Math.round(sum/tick.stocks.length * 10) / 10 //TODO: set up dynamic round through config -> DRY
-      //tick.avg = Math.round((tick.beer + tick.wine + tick.cocktail + tick.bitcoin)/4) //TODO: make this dynamic
-
       data.push(tick)
+
       sse.send(data[data.length -1], "tick");
   }, config.tickInterval);
 }
 //Should prob be a mini fnction for determining the trend and one for the calc. close value
 function getTickValue(stock){
+  if (manips[stock.name]) {
+    stock.trend = manips[stock.name]  //Basic logic for manipulating stocks
+    //console.log(stock.trend)
+  }
   if (rn(30) ){ //About 3/10 loops will trigger a reroll for the trend
     //console.log("trendSwitch?", trend)
     stock.trend = rn(20) ? "down" : "up"  //80% chance the stock will go up

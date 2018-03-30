@@ -9,15 +9,16 @@ I'm building this project off of my coworkers 'simple-server' project [documente
 
 ## TODO:
 
-11. Set up a graph for each stock currently in the system
+11. Set up a graph for each stock currently in the system (DONE)
 12. Create a way to add stocks while system is running (either create them client-side or turn them on/off client-side)
-13. Create a way to manipulate stocks while system is running
+13. Create a way to manipulate stocks while system is running (POC done, needs more work)
+14. Host it somewhere and test (not necessary, can serve it locally with static IP :)
 14. Set up stock scenarios that can be triggered through protected clientside
 15. Calculate max profits, adjust so we dont get bakrupted by one succesful investor...
 10. Create login, protect system
 10. Add stock ticker?
-11. Update to d3.v5
-13. Host it somewhere
+11. (Update to d3.v5)
+
 
 ## Finished functionality
 
