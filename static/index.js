@@ -89,6 +89,11 @@ function drawGraph(data){
     .attr("d", line)
 }
 
+//Updates the line with a rolling window of 100 points (so it should be 100 minutes with current settings)
+//TODO: The animation isnt working because I cant figure out how to dynamically calc
+//      The right offset for x(). It's some crazy high number like 1523100000000. Gues this
+//      is because it's a timescale. I thought it would be 1 minute in millisecs but it's not that.
+//      Need to find a way to find the exact amount between two points on the x scale and feed that in
 function update() {
   //console.log("updating line")
   if (stockData.length > 100) stockData.shift()
@@ -99,7 +104,8 @@ function update() {
   x.domain([minDate, maxDate + padding]);
   //console.log(x.domain())
   y.domain(d3.extent(stockData, function(d) { return d.avg }))
-  
+  let xOffset = x(stockData[stockData.length -1].date.getTime()) - x(stockData[stockData.length -2].date.getTime())
+  console.log(xOffset)
   svg.select(".x.axis") // change the x axis
     .call(d3.axisBottom(x))
   svg.select(".y.axis") // change the y axis
@@ -108,8 +114,10 @@ function update() {
     .attr('font-size', 15)
     .attr('fill', "red")
   svg.select(".line")
-    .transition()
-    .duration(500)
-    .ease(d3.easeLinear)
     .attr("d", line(stockData))
+  //   .attr("transform", null)
+  // .transition()
+  //   .duration(500)
+  //   .ease(d3.easeLinear)
+  //   .attr("transform", "translate(" + xOffset + ")")
 }

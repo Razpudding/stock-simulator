@@ -9,7 +9,7 @@ const moment = require('moment')
 const sse = new SSE([]);
 
 const config = {
-  tickInterval : 500,
+  tickInterval : 1000,
   upTick: 3,
   downTick: 10,
   historyLength: 100,
@@ -17,41 +17,22 @@ const config = {
 
 let data = [
   {
-    beer: 0,
-    wine: 5,
-    cocktail: 10,
+    stocks: [
+      {name:"beer", close:0, trend:"up"},
+      {name:"wine", close:5, trend:"up"},
+      {name:"cocktail", close:10, trend:"up"},
+      {name:"bitcoin", close:10, trend:"up"}],
     date: moment().add(-1,'minutes'),
-    avg: '5',
-    bitcoin: 10,
+    avg: '7.5',
   },
   {
-    beer: 10,
-    wine: 15,
-    cocktail: 20,
+    stocks: [
+      {name:"beer", close:10, trend:"up"},
+      {name:"wine", close:15, trend:"up"},
+      {name:"cocktail", close:20, trend:"up"},
+      {name:"bitcoin", close:15, trend:"up"}],
     date: moment().add(0,'minutes'),
     avg: '15',
-  },
-  {
-    beer: 0,
-    wine: 5,
-    cocktail: 10,
-    date: moment().add(1,'minutes'),
-    avg: '5',
-  },
-  {
-    beer: 20,
-    wine: 25,
-    cocktail: 30,
-    date: moment().add(2,'minutes'),
-    avg: '25',
-  },
-  {
-    beer: 5,
-    wine: 10,
-    cocktail: 15,
-    date: moment().add(3,'minutes'),
-    avg: '10',
-    bitcoin: 10,
   },
 ]
 
@@ -101,33 +82,38 @@ function trendGenerator(type){
 
       tick.date = last.date.add(1,'minutes')
 
-      tick.beer = getTickValue(+last.beer)
-      tick.wine = getTickValue(+last.wine)
-      tick.cocktail = getTickValue(+last.cocktail)
-      tick.bitcoin = getTickValue(+last.bitcoin)
-      tick.avg = Math.round((tick.beer + tick.wine + tick.cocktail + tick.bitcoin)/4) //TODO: make this dynamic
+      tick.stocks = last.stocks.map(stock => getTickValue(stock))
+      console.log("stocks", tick.stocks)
+      //tick.beer = getTickValue(+last.beer)
+      //tick.wine = getTickValue(+last.wine)
+      //tick.cocktail = getTickValue(+last.cocktail)
+      //tick.bitcoin = getTickValue(+last.bitcoin)
+      let sum = 0;
+      tick.stocks.forEach(stock => sum+= stock.close)
+      tick.avg = sum/tick.stocks.length
+      //tick.avg = Math.round((tick.beer + tick.wine + tick.cocktail + tick.bitcoin)/4) //TODO: make this dynamic
 
       data.push(tick)
       sse.send(data[data.length -1], "tick");
   }, config.tickInterval);
 }
-
-function getTickValue(close){
+//Should prob be a mini fnction for determining the trend and one for the calc. close value
+function getTickValue(stock){
   if (rn(30) ){ //About 3/10 loops will trigger a reroll for the trend
     //console.log("trendSwitch?", trend)
-    trend = rn(20) ? "down" : "up"  //80% chance the stock will go up
+    stock.trend = rn(20) ? "down" : "up"  //80% chance the stock will go up
   }
-  if (trend == "up"){
-    close *= 1 + (config.upTick + (rn(50) ? r(config.upTick) : - r(config.upTick) ))/100  //uptick +/- random() * uptick
+  if (stock.trend == "up"){
+    stock.close *= 1 + (config.upTick + (rn(50) ? r(config.upTick) : - r(config.upTick) ))/100  //uptick +/- random() * uptick
     //console.log((config.upTick + (rn(50) ? r(config.upTick) : - r(config.upTick)))/100)
   }
   else {
-    close /= 1 + (config.downTick + (rn(50) ? r(config.downTick) : - r(config.downTick) ))/100
-    close = close < 1 ? 1 : close //Had to add this line because if the close < 1 for some reason it wont correct up anymore, maybe a rounding issue?
+    stock.close /= 1 + (config.downTick + (rn(50) ? r(config.downTick) : - r(config.downTick) ))/100
+    stock.close = stock.close < 1 ? 1 : stock.close //Had to add this line because if the close < 1 for some reason it wont correct up anymore, maybe a rounding issue?
     //console.log((config.downTick + (rn(50) ? r(config.downTick) : - r(config.downTick) ))/100)
   }
-
-  return Math.round(close * 10) / 10  //Do this to round to one decimal
+  stock.close = Math.round(stock.close * 10) / 10  //Do this to round to one decimal
+  return stock
 }
 
 function rn(chance){

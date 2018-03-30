@@ -12,33 +12,35 @@ es.onmessage = function (event) {
 	let sectionWrapper = document.createElement('article')
 	sectionWrapper.classList.add('wrapper')
 	document.body.appendChild(sectionWrapper)
-	for (stat in last){
-		if (stat == "date" || stat == "avg") continue
+	last.stocks.forEach( stock => {
+		//if (stat == "date" || stock == "avg") continue
 		let sectionEl = document.createElement('section')
 		sectionEl.classList.add('stat')
 		let h2El = document.createElement('h2')
-		h2El.textContent = stat
+		h2El.textContent = stock.name
 		let pEl = document.createElement('p')
-		pEl.id = stat
-		pEl.textContent ="฿" +  last[stat]
+		pEl.id = stock.name
+		pEl.textContent ="฿" +  stock.close
 		
 		sectionWrapper.appendChild(sectionEl)
 		sectionEl.appendChild(h2El)
 		sectionEl.appendChild(pEl)
-	}
+	})
+
 	running = true
 }
 
 es.addEventListener("tick", function (event) {
 	let tick = JSON.parse(event.data)
-
+	let lastClose = {}
+	last.stocks.forEach( stock => lastClose[stock.name] = stock.close)
 	console.log("tick", tick)
-	for (stat in tick){
-		if (stat == "date" || stat == "avg") continue
-		let el = document.getElementById(stat)
-		el.textContent = "฿" + tick[stat]
-		el.className = +tick[stat] >= +last[stat]? "green" : "red"
-		el.textContent += +tick[stat] >= +last[stat]? "⇧": "⇩"
-	}
+	tick.stocks.forEach( stock => {
+		//if (stat == "date" || stat == "avg") continue
+		let el = document.getElementById(stock.name)
+		el.textContent = "฿" + stock.close
+		el.className = +stock.close >= +lastClose[stock.name]? "green" : "red"
+		el.textContent += +stock.close >= +lastClose[stock.name]? "⇧": "⇩"
+	})
 	last = tick
 })
