@@ -29,9 +29,10 @@ function clean(item){
 }
 //Update pattern from Titus Wormer https://github.com/cmda-fe3x3/course-17-18/blob/master/site/class-5/filter-join/index.js
 //Basic linechart code adapted from Mike Bostock https://bl.ocks.org/mbostock/3883245
-let x
-let y
-let line //Global so update can reach it
+let charts = {}
+//let x
+//let y
+//let line //Global so update can reach it
 function drawGraph(data){
   console.log(data)
   //Take the last data point from the initial data and use that to generate a chart for each stock
@@ -46,21 +47,24 @@ function drawGraph(data){
     svg.attr('height', height + 80)
     g = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")")  
 
-    x = d3.scaleTime()
+    let x = d3.scaleTime()
     .rangeRound([0, width])
 
-    y = d3.scaleLinear()
+    let y = d3.scaleLinear()
     .rangeRound([height -10, +50])
 
     //data.forEach(d => console.log(d.stocks.find(s => s.name == stock.name)))
 
-    line = d3.line()
+    let line = d3.line()
     .x(function(d) { return x(d.date) })
     .y(function(d) { return y(d.stocks.find(s => s.name == stock.name).close) })  //Return the close value of the current stock
 
     x.domain(d3.extent(data, function(d) { return d.date }))
     y.domain(d3.extent(data, function(d) { return d.stocks.find(s => s.name == stock.name).close }))
+    charts[stock.name] = {x, y, line}
+
     console.log(stock.name, y.domain())
+    console.log("and", charts[stock.name].y.domain())
 
     g.append("g")
       .attr("transform", "translate(0," + height + ")")
@@ -113,21 +117,21 @@ function update() {
 
     let minY = d3.min(stockData, function(d) { return d.stocks.find(s => s.name == stock.name).close })
     let maxY = d3.max(stockData, function(d) { return d.stocks.find(s => s.name == stock.name).close })
-    console.log(stock.name, maxY)
+    //console.log(stock.name, maxY)
     let xPadding = (maxDate - minDate) * .05
     let yPadding = (maxY - minY) * 0.1
-    x.domain([minDate, maxDate + xPadding]);
-    y.domain([minY, maxY + yPadding])
+    charts[stock.name].x.domain([minDate, maxDate + xPadding]);
+    charts[stock.name].y.domain([minY, maxY + yPadding])
     //let xOffset = x(stockData[stockData.length -1].date.getTime()) - x(stockData[stockData.length -2].date.getTime())
     svg.select(".x.axis") // change the x axis
-      .call(d3.axisBottom(x))
+      .call(d3.axisBottom(charts[stock.name].x))
     svg.select(".y.axis") // change the y axis
-      .call(d3.axisLeft(y))
+      .call(d3.axisLeft(charts[stock.name].y))
     svg.select('g.tick > text')
       .attr('font-size', "2em")
       .attr('fill', "red")
     svg.select(".line")
-      .attr("d", line(stockData))
+      .attr("d", charts[stock.name].line(stockData))
     //   .attr("transform", null)
     // .transition()
     //   .duration(500)
