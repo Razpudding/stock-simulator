@@ -9,7 +9,7 @@ const moment = require('moment')
 const sse = new SSE([]);
 
 const config = {
-  tickInterval : 1000,
+  tickInterval : 5000,
   upTick: 3,
   downTick: 10,
   historyLength: 100,
@@ -90,7 +90,7 @@ function trendGenerator(type){
       //tick.bitcoin = getTickValue(+last.bitcoin)
       let sum = 0;
       tick.stocks.forEach(stock => sum+= stock.close)
-      tick.avg = sum/tick.stocks.length
+      tick.avg = Math.round(sum/tick.stocks.length * 10) / 10 //TODO: set up dynamic round through config -> DRY
       //tick.avg = Math.round((tick.beer + tick.wine + tick.cocktail + tick.bitcoin)/4) //TODO: make this dynamic
 
       data.push(tick)
