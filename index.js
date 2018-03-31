@@ -11,9 +11,9 @@ const sse = new SSE([]);
 require('dotenv').config()
 
 const config = {
-  tickInterval : 2000,
-  upTick: 3,
-  downTick: 10,
+  tickInterval : 500,
+  upTick: 2.5,
+  downTick: 8,
   historyLength: 100,
   maxMultiplier: 20,
 }
@@ -21,25 +21,13 @@ const config = {
 let data = [
   {
     stocks: [
-      // {name:"communism", close:4, trend:"up"},
-      // {name:"capitalism", close:5, trend:"up"},
-      // {name:"egocentrism", close:10, trend:"up"},
-      {name:"love", close:10, trend:"up"},
-      {name:"oil", close:12, trend:"up"},
-      {name:"bitcoin", close:8, trend:"up"},
-      {name:"egocentrism", close:10, trend:"up"}],
-    date: moment().add(-1,'minutes'),
-    avg: '7.5',
-  },
-  {
-    stocks: [
-      // {name:"communism", close:5, trend:"up"},
-      // {name:"capitalism", close:7, trend:"up"},
-      // {name:"egocentrism", close:8, trend:"up"},
-      {name:"love", close:11, trend:"up"},
-      {name:"oil", close:9, trend:"up"},
-      {name:"bitcoin", close:10, trend:"up"},
-      {name:"egocentrism", close:13, trend:"up"}],
+      {name:"communism", close:.5, trend:"off"},
+      {name:"capitalism", close:.7, trend:"off"},
+      {name:"egocentrism", close:.8, trend:"off"},
+      {name:"love", close:1.1, trend:"up"},
+      {name:"oil", close:.9, trend:"up"},
+      {name:"bitcoin", close:1.0, trend:"up"}
+      ],
     date: moment().add(0,'minutes'),
     avg: '15',
   },
@@ -69,14 +57,10 @@ function home(req, res){
 
 //Send home.html
 function changePage(req, res){
-  //res.sendFile(path.join(__dirname + '/static/change.html'));
   res.render('change.ejs', {
-    stocks: data[data.length-1].stocks,
-    trends: ["up","down"]   //Send the last datapoint over
+    stocks: data[data.length-1].stocks,     //Send the last datapoint over
+    trends: ["up","down","off", "on"],   
     })
-  //How it should work: Use ejs to send a data context of the different kind of stocks and the options
-  // Render the page dynamically with dropdowns for stocks and options
-  // Receive a  command from a predetermined list of commands, process command, presto
 }
 
 function changeData(req,res)
@@ -87,6 +71,11 @@ function changeData(req,res)
   if (input.password == process.env.PASS){
     manips[input.stocks] = {trend: input.trend, ticks: input.ticks}
     console.log(manips)
+    if (input.trend == "off" || input.trend == "on"){
+      setTimeout(() => {
+        sse.send(1, "reload") //send a reload event to the client AFTER the next tick has been sent so it know which graphs to show
+      }, config.tickInterval + 1000)
+    }
   }
   else { console.log("wrong password") }
   changePage(req,res) //Reload the page
@@ -142,8 +131,12 @@ function trendGenerator(type){
   }, config.tickInterval);
 }
 //Should prob be a mini fnction for determining the trend and one for the calc. close value
+//TODO: rewrite this function so it's less ugly. Pass manips as an object
 function getTickValue(stock){
-  if (manips[stock.name] && manips[stock.name].ticks > 0) {
+  if (manips[stock.name] && manips[stock.name].trend == "on") stock.trend = "up" //Turn the stock on!
+  if (manips[stock.name] && manips[stock.name].trend == "off") stock.trend = "off" //Turn the stock off!
+  if(stock.trend == "off") return stock
+  if (manips[stock.name] && manips[stock.name].ticks > 0 && (manips[stock.name].trend == "up" || manips[stock.name].trend == "down")) {
     stock.trend = manips[stock.name].trend  //Basic logic for manipulating stocks
     console.log("manip trend", stock.name, stock.trend, manips[stock.name].ticks)
     manips[stock.name].ticks --
@@ -159,10 +152,10 @@ function getTickValue(stock){
   }
   else {
     stock.close /= 1 + (config.downTick + (rn(50) ? r(config.downTick) : - r(config.downTick) ))/100
-    stock.close = stock.close < 1 ? 1 : stock.close //Had to add this line because if the close < 1 for some reason it wont correct up anymore, maybe a rounding issue?
+    stock.close = stock.close < 1.1 ? 1.1 : stock.close //Had to add this line because if the close < 1 for some reason it wont correct up anymore, maybe a rounding issue?
     //console.log((config.downTick + (rn(50) ? r(config.downTick) : - r(config.downTick) ))/100)
   }
-  stock.close = Math.round(stock.close * 10) / 10  //Do this to round to one decimal
+  stock.close = Math.round(stock.close * 100) / 100  //Do this to round to one decimal
   return stock
 }
 

@@ -13,6 +13,7 @@ es.onmessage = function (event) {
 	sectionWrapper.classList.add('wrapper')
 	document.body.appendChild(sectionWrapper)
 	last.stocks.forEach( stock => {
+		if (stock.trend == "off") return
 		//if (stat == "date" || stock == "avg") continue
 		let sectionEl = document.createElement('section')
 		sectionEl.classList.add('stat')
@@ -36,6 +37,7 @@ es.addEventListener("tick", function (event) {
 	last.stocks.forEach( stock => lastClose[stock.name] = stock.close)
 	console.log("tick", tick)
 	tick.stocks.forEach( stock => {
+		if (stock.trend == "off") return
 		//if (stat == "date" || stat == "avg") continue
 		let el = document.getElementById(stock.name)
 		el.textContent = "฿" + stock.close
@@ -43,4 +45,9 @@ es.addEventListener("tick", function (event) {
 		el.textContent += +stock.close >= +lastClose[stock.name]? "⇧": "⇩"
 	})
 	last = tick
+})
+
+//Reload the page when the stocks visibility changes
+es.addEventListener("reload", function (event) {
+  location.reload()
 })

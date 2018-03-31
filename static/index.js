@@ -19,6 +19,11 @@ es.addEventListener("tick", function (event) {
   update()
 })
 
+//Reload the page when the stocks visibility changes
+es.addEventListener("reload", function (event) {
+  location.reload()
+})
+
 function clean(item){
   let parseTime = d3.timeParse("%d-%b-%y")
   item.date = new Date(item.date)
@@ -37,8 +42,10 @@ function drawGraph(data){
   console.log(data)
   //Take the last data point from the initial data and use that to generate a chart for each stock
   const dataPoint = data[data.length-1]
-  const numStocks = dataPoint.stocks.length
+  numStocks = 0
+  dataPoint.stocks.forEach(stock => numStocks += (stock.trend != "off"))  //TODO: turn this into a filter and pass filtered tdata to the foreach below
   dataPoint.stocks.forEach(stock => {
+    if (stock.trend == "off") return
     let svg = d3.select("body").append("svg")
     svg.attr("id", stock.name)
     let margin = {top: 0, right: 20, bottom: 0, left: 150}
@@ -113,6 +120,7 @@ function update() {
   if (stockData.length > 100) stockData.shift()     //Turn this line off to always show a complete history of the data
   
   stockData[stockData.length -1].stocks.forEach(stock => {   
+    if (stock.trend == "off") return
     const svg = charts[stock.name].svg
     let minDate = d3.min(stockData, function(d) { return d.date.getTime() })
     let maxDate = d3.max(stockData, function(d) { return d.date.getTime() })
@@ -124,7 +132,6 @@ function update() {
     let yPadding = (maxY - minY) * 0.05
     charts[stock.name].x.domain([minDate, maxDate + xPadding]);
     charts[stock.name].y.domain([minY, maxY + yPadding])
-    //let xOffset = x(stockData[stockData.length -1].date.getTime()) - x(stockData[stockData.length -2].date.getTime())
     svg.select(".x.axis") // change the x axis
       .call(d3.axisBottom(charts[stock.name].x))
     svg.select(".y.axis") // change the y axis
@@ -134,10 +141,5 @@ function update() {
       .attr('fill', "red")
     svg.select(".line")
       .attr("d", charts[stock.name].line(stockData))
-    //   .attr("transform", null)
-    // .transition()
-    //   .duration(500)
-    //   .ease(d3.easeLinear)
-    //   .attr("transform", "translate(" + xOffset + ")")
   })
 }
