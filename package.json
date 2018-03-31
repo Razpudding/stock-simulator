@@ -13,6 +13,7 @@
     "Titus Wormer <tituswormer@gmail.com> (http://wooorm.com)"
   ],
   "dependencies": {
+    "dotenv": "^5.0.1",
     "ejs": "^2.5.7",
     "express": "^4.16.2",
     "express-sse": "^0.4.1",

@@ -57,3 +57,148 @@ img {
   background: red;
   color: white
 }
+
+/* Some styling copied from @woooorm */
+form {
+  margin: 0 calc(-2 * (1em + 1ex));
+  padding: calc(1em + 1ex) calc(2 * (1em + 1ex));
+  border-radius: 3px;
+}
+
+fieldset {
+  margin: 0 calc(-1em - 1ex);
+  padding: 0 calc(1em + 1ex);
+  border-width: 0;
+  border-radius: 3px;
+}
+
+fieldset + * {
+  margin-top: calc(1em + 1ex);
+}
+
+legend {
+  font-weight: bolder;
+  padding: 1ch;
+  margin: -1ch;
+  border-radius: 3px;
+}
+
+form,
+fieldset,
+legend {
+  background-color: transparent;
+  transition: background-color 300ms;
+}
+
+form:valid,
+fieldset:valid,
+fieldset:valid legend {
+  background-color: hsla(120, 93%, 79%, 0.5); /* palegreen */
+}
+
+label,
+textarea,
+input,
+select {
+  display: block;
+}
+
+label {
+  margin: calc(1em + 1ex) 0;
+}
+
+input:not([type]),
+input[type=text i],
+textarea,
+select {
+  background-color: snow;
+  width: 100%;
+  margin: 0;
+  margin-top: 1ch;
+  padding: 1ch;
+  font: inherit;
+  font-size: smaller;
+  border: 1px solid hsla(240, 20%, 20%, 0.5);
+  border-radius: 3px;
+  appearance: none;
+  -webkit-appearance: none;
+  transition-property: transform, border-color;
+  transition-duration: 300ms;
+}
+
+textarea {
+  resize: vertical;
+}
+
+input[type=checkbox],
+input[type=radio] {
+  display: inline;
+  margin: 0;
+}
+
+input[type=submit i],
+input[type=button i],
+button {
+  font: inherit;
+  background-color: goldenrod;
+  color: whitesmoke;
+  width: 100%;
+  padding: 1ch;
+  border: 1px solid transparent;
+  border-radius: 3px;
+  text-align: center;
+  transition-property: transform, color, border-color, background-color;
+  transition-duration: 300ms;
+}
+
+input:valid,
+select:valid,
+textarea:valid {
+  border-color: green;
+}
+
+input[type=submit i]:hover,
+input[type=button i]:hover,
+button:hover {
+  background-color: whitesmoke;
+  color: inherit;
+  border-color: currentcolor;
+}
+
+input:not([type]):focus,
+input[type=text i]:focus,
+input[type=submit i]:focus,
+input[type=button i]:focus,
+textarea:focus,
+select:focus,
+button:focus {
+  transform: scale(1.01, 1.01);
+}
+
+input:not([type])[required],
+input[type=text i][required],
+select[required],
+textarea[required] {
+  padding-right: calc(1em + 1ex);
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="20" height="20"><text x="0" y="20" font-size="20" fill="red">*</text></svg>');
+  background-repeat: no-repeat;
+  background-position: right center;
+  background-size: 1em;
+}
+
+input:not([type])[required]:valid,
+input[type=text i][required]:valid,
+select[required]:valid,
+textarea[required]:valid {
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="20" height="20"><text x="0" y="20" font-size="20" fill="green">*</text></svg>');
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: hsla(240, 20%, 20%, 0.25);
+  font-style: italic;
+}
+
+.danger {
+  background-color: crimson;
+}

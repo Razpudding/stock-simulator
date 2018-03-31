@@ -8,47 +8,52 @@ const path = require('path');
 const SSE = require('express-sse')
 const moment = require('moment')
 const sse = new SSE([]);
+require('dotenv').config()
 
 const config = {
-  tickInterval : 500,
+  tickInterval : 2000,
   upTick: 3,
   downTick: 10,
   historyLength: 100,
+  maxMultiplier: 20,
 }
 
 let data = [
   {
     stocks: [
-      {name:"beer", close:1, trend:"up"},
-      {name:"wine", close:5, trend:"up"},
-      {name:"cocktail", close:10, trend:"up"},
+      // {name:"communism", close:4, trend:"up"},
+      // {name:"capitalism", close:5, trend:"up"},
+      // {name:"egocentrism", close:10, trend:"up"},
       {name:"love", close:10, trend:"up"},
       {name:"oil", close:12, trend:"up"},
-      {name:"paarden", close:8, trend:"up"},
+      {name:"bitcoin", close:8, trend:"up"},
       {name:"egocentrism", close:10, trend:"up"}],
     date: moment().add(-1,'minutes'),
     avg: '7.5',
   },
   {
     stocks: [
-      {name:"beer", close:2, trend:"up"},
-      {name:"wine", close:7, trend:"up"},
-      {name:"cocktail", close:8, trend:"up"},
+      // {name:"communism", close:5, trend:"up"},
+      // {name:"capitalism", close:7, trend:"up"},
+      // {name:"egocentrism", close:8, trend:"up"},
       {name:"love", close:11, trend:"up"},
-      {name:"oil", close:14, trend:"up"},
-      {name:"paarden", close:12, trend:"up"},
-      {name:"egocentrism", close:15, trend:"up"}],
+      {name:"oil", close:9, trend:"up"},
+      {name:"bitcoin", close:10, trend:"up"},
+      {name:"egocentrism", close:13, trend:"up"}],
     date: moment().add(0,'minutes'),
     avg: '15',
   },
 ]
 
-let manips = {
-  "beer": false
-}
-
+let manips = {}  //TODO: have this be not global but a param to a function
+let maxVals = {}
+data[0].stocks.forEach( stock => maxVals[stock.name] = stock.close* config.maxMultiplier)
+console.log(maxVals)
+//maxVals.stocks.forEach( stock => stock.close *= 10)
 express()
   .use(express.static('static'))
+  .set('view engine', 'ejs')
+  .set('views', 'views')
   .use(bodyParser.urlencoded({extended: true}))
   .get('/', home)
   .get('/stats', stats)
@@ -64,15 +69,27 @@ function home(req, res){
 
 //Send home.html
 function changePage(req, res){
-  res.sendFile(path.join(__dirname + '/static/change.html'));
+  //res.sendFile(path.join(__dirname + '/static/change.html'));
+  res.render('change.ejs', {
+    stocks: data[data.length-1].stocks,
+    trends: ["up","down"]   //Send the last datapoint over
+    })
+  //How it should work: Use ejs to send a data context of the different kind of stocks and the options
+  // Render the page dynamically with dropdowns for stocks and options
+  // Receive a  command from a predetermined list of commands, process command, presto
 }
 
 function changeData(req,res)
 {
   let input = req.body
   console.log(input)
-  manips[input.name] = input.trend
-  console.log(manips)
+  console.log(input.trend)
+  if (input.password == process.env.PASS){
+    manips[input.stocks] = {trend: input.trend, ticks: input.ticks}
+    console.log(manips)
+  }
+  else { console.log("wrong password") }
+  changePage(req,res) //Reload the page
   //TODO: finish this functionality. It should work something like this:
   // simple version: follow trend for var ticks or seconds
   // better version: follow trend until %change has been reached
@@ -126,9 +143,10 @@ function trendGenerator(type){
 }
 //Should prob be a mini fnction for determining the trend and one for the calc. close value
 function getTickValue(stock){
-  if (manips[stock.name]) {
-    stock.trend = manips[stock.name]  //Basic logic for manipulating stocks
-    //console.log(stock.trend)
+  if (manips[stock.name] && manips[stock.name].ticks > 0) {
+    stock.trend = manips[stock.name].trend  //Basic logic for manipulating stocks
+    console.log("manip trend", stock.name, stock.trend, manips[stock.name].ticks)
+    manips[stock.name].ticks --
   }
   if (rn(30) ){ //About 3/10 loops will trigger a reroll for the trend
     //console.log("trendSwitch?", trend)
@@ -136,6 +154,7 @@ function getTickValue(stock){
   }
   if (stock.trend == "up"){
     stock.close *= 1 + (config.upTick + (rn(50) ? r(config.upTick) : - r(config.upTick) ))/100  //uptick +/- random() * uptick
+    stock.close = stock.close >= maxVals[stock.name] ? maxVals[stock.name] : stock.close 
     //console.log((config.upTick + (rn(50) ? r(config.upTick) : - r(config.upTick)))/100)
   }
   else {

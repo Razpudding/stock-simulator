@@ -1,0 +1,18 @@
+<!doctype html>
+<title>change a stock </title>
+<link rel=stylesheet href=index.css>
+<form action=/ method=post>
+	<select name="stocks">
+		<% stocks.forEach( stock => { %>
+		<option value=<%=stock.name%>><%=stock.name%></option>
+		<% }) %>
+	</select>
+	<select name="trend">
+	<% trends.forEach( trend => { %>
+		<option value=<%=trend%>><%=trend%></option>
+		<% }) %>
+	</select>
+	<label>Ticks <input name=ticks></label>
+	<label>Password <input type="password" name=password></label>
+	<button>change</button>
+</form>

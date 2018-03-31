@@ -121,7 +121,7 @@ function update() {
     let maxY = d3.max(stockData, function(d) { return d.stocks.find(s => s.name == stock.name).close })
     //console.log(stock.name, maxY)
     let xPadding = (maxDate - minDate) * .05
-    let yPadding = (maxY - minY) * 0.1
+    let yPadding = (maxY - minY) * 0.05
     charts[stock.name].x.domain([minDate, maxDate + xPadding]);
     charts[stock.name].y.domain([minY, maxY + yPadding])
     //let xOffset = x(stockData[stockData.length -1].date.getTime()) - x(stockData[stockData.length -2].date.getTime())
