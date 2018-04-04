@@ -135,12 +135,13 @@ function trendGenerator(type){
 function getTickValue(stock){
   if (manips[stock.name] && manips[stock.name].trend == "on") stock.trend = "up" //Turn the stock on!
   if (manips[stock.name] && manips[stock.name].trend == "off") stock.trend = "off" //Turn the stock off!
-  if(stock.trend == "off") return stock
+  if(stock.trend == "off") return stocks  //If a stock is turned off, dont generate a new value for it
   if (manips[stock.name] && manips[stock.name].ticks > 0 && (manips[stock.name].trend == "up" || manips[stock.name].trend == "down")) {
-    stock.trend = manips[stock.name].trend  //Basic logic for manipulating stocks
+    stock.trend = manips[stock.name].trend
     console.log("manip trend", stock.name, stock.trend, manips[stock.name].ticks)
     manips[stock.name].ticks --
   }
+  //Basic logic for manipulating stocks
   if (rn(30) ){ //About 3/10 loops will trigger a reroll for the trend
     //console.log("trendSwitch?", trend)
     stock.trend = rn(20) ? "down" : "up"  //80% chance the stock will go up
