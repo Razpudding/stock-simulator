@@ -11,7 +11,7 @@ const sse = new SSE([]);
 require('dotenv').config()
 
 const config = {
-  tickInterval : 500,
+  tickInterval : 800,
   upTick: 2.5,
   downTick: 8,
   historyLength: 100,
@@ -45,7 +45,7 @@ express()
   .use(bodyParser.urlencoded({extended: true}))
   .get('/', home)
   .get('/stats', stats)
-  .get('/charts', charts)
+  .get('/stream', stream)
   .get('/change', changePage)
   .post('/', changeData)
   .listen(8000)
@@ -93,7 +93,7 @@ function stats(req, res){
 }
 
 //Initialise server-sent-events and send the initial data
-function charts(req,res){
+function stream(req,res){
   console.log("Sending initial data")
   sse.init(req,res)
   sse.send(data.slice(data.length - config.historyLength));

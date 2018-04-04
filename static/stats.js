@@ -2,7 +2,7 @@
 *	TODO: 
 */
 console.log("loading stats")
-let es = new EventSource('/charts')
+let es = new EventSource('/stream')
 let running = false		//Ensure the setup is only performed once
 let last;
 es.onmessage = function (event) {

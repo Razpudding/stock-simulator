@@ -2,7 +2,7 @@
 * TODO: 
 */
 
-let es = new EventSource('/charts')
+let es = new EventSource('/stream')
 let stockData = [] 
 let running = false   //Ensure the setup is only performed once
 console.log("loaded")
@@ -48,10 +48,10 @@ function drawGraph(data){
     if (stock.trend == "off") return
     let svg = d3.select("body").append("svg")
     svg.attr("id", stock.name)
-    let margin = {top: 0, right: 20, bottom: 0, left: 150}
+    let margin = {top: 0, right: 200, bottom: 0, left: 150}
     //let filler = dataPoint.stocks.length % 2  //We dont want the total width to be divided by 2.5 in case of 5 stocks but
     let width = (window.innerWidth - margin.left - margin.right)/Math.round(numStocks /2) //Have two rows of charts
-    let height = (window.innerHeight / 2) * .9 //Rows of charts to display
+    let height = (window.innerHeight / 2) * .6 //Rows of charts to display
     
     svg.attr('width', width)
     svg.attr('height', height * 1.1)
@@ -140,6 +140,7 @@ function update() {
       .attr('font-size', "2em")
       .attr('fill', "red")
     svg.select(".line")
+      .transition()
       .attr("d", charts[stock.name].line(stockData))
   })
 }

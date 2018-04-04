@@ -1,16 +1,16 @@
 {
   "private": true,
-  "name": "express-server",
+  "name": "stock-simulator",
   "version": "1.0.0",
-  "description": "Simple express example",
+  "description": "A simple server that serves a stock simulation.",
   "license": "MIT",
-  "keywords": [],
-  "homepage": "https://github.com/cmda-be/course-17-18/tree/master/examples/express-server",
-  "repository": "cmda-be/course-17-18",
-  "bugs": "https://github.com/cmda-be/course-17-18/issues",
-  "author": "Titus Wormer <tituswormer@gmail.com> (wooorm.com)",
+  "keywords": ["d3","stocks","SSE","server sent events","express","real-time","graph"],
+  "homepage": "https://github.com/Razpudding/stock-simulator",
+  "repository": "Razpudding/stock-simulator",
+  "bugs": "https://github.com/Razpudding/stock-simulator/issues",
+  "author": "Razpudding",
   "contributors": [
-    "Titus Wormer <tituswormer@gmail.com> (http://wooorm.com)"
+    "Razpudding"
   ],
   "dependencies": {
     "dotenv": "^5.0.1",
@@ -23,7 +23,7 @@
     "nodemon": "^1.17.2"
   },
   "scripts": {
-    "start": "node .",
-    "test": "nodemon ."
+    "start": "node server.js",
+    "test": "nodemon server.js"
   }
 }
