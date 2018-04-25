@@ -140,7 +140,7 @@ function update() {
       .attr('font-size', "2em")
       .attr('fill', "red")
     svg.select(".line")
-      .transition()
+      //.transition()
       .attr("d", charts[stock.name].line(stockData))
   })
 }

@@ -16,6 +16,7 @@ const config = {
   downTick: 8,
   historyLength: 100,
   maxMultiplier: 20,
+  dataPointLimit: 100
 }
 
 let data = [
@@ -29,7 +30,7 @@ let data = [
       {name:"bitcoin", close:1.0, trend:"up"}
       ],
     date: moment().add(0,'minutes'),
-    avg: '15',
+    avg: '0.67',
   },
 ]
 
@@ -126,6 +127,10 @@ function trendGenerator(type){
       tick.stocks.forEach(stock => sum+= stock.close)
       tick.avg = Math.round(sum/tick.stocks.length * 10) / 10 //TODO: set up dynamic round through config -> DRY
       data.push(tick)
+      //Makes sure theres no memory leak caused by filling up memory with unneeded data
+      if (data.length > config.dataPointLimit) {
+        data.shift()
+      }
 
       sse.send(data[data.length -1], "tick");
   }, config.tickInterval);
@@ -135,7 +140,7 @@ function trendGenerator(type){
 function getTickValue(stock){
   if (manips[stock.name] && manips[stock.name].trend == "on") stock.trend = "up" //Turn the stock on!
   if (manips[stock.name] && manips[stock.name].trend == "off") stock.trend = "off" //Turn the stock off!
-  if(stock.trend == "off") return stocks  //If a stock is turned off, dont generate a new value for it
+  if(stock.trend == "off") return stock  //If a stock is turned off, dont generate a new value for it
   if (manips[stock.name] && manips[stock.name].ticks > 0 && (manips[stock.name].trend == "up" || manips[stock.name].trend == "down")) {
     stock.trend = manips[stock.name].trend
     console.log("manip trend", stock.name, stock.trend, manips[stock.name].ticks)
