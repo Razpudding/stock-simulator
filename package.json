@@ -4,7 +4,15 @@
   "version": "1.0.0",
   "description": "A simple server that serves a stock simulation.",
   "license": "MIT",
-  "keywords": ["d3","stocks","SSE","server sent events","express","real-time","graph"],
+  "keywords": [
+    "d3",
+    "stocks",
+    "SSE",
+    "server sent events",
+    "express",
+    "real-time",
+    "graph"
+  ],
   "homepage": "https://github.com/Razpudding/stock-simulator",
   "repository": "Razpudding/stock-simulator",
   "bugs": "https://github.com/Razpudding/stock-simulator/issues",
@@ -20,7 +28,7 @@
     "moment": "^2.21.0"
   },
   "devDependencies": {
-    "nodemon": "^1.17.2"
+    "nodemon": "^1.19.0"
   },
   "scripts": {
     "start": "node server.js",
