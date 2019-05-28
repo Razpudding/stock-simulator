@@ -3,7 +3,8 @@
 */
 
 const express = require('express')
-var bodyParser = require('body-parser')
+const session = require('express-session')
+const bodyParser = require('body-parser')
 const path = require('path');
 const SSE = require('express-sse')
 const moment = require('moment')
@@ -40,6 +41,12 @@ data[0].stocks.forEach( stock => maxVals[stock.name] = stock.close* config.maxMu
 console.log(maxVals)
 //maxVals.stocks.forEach( stock => stock.close *= 10)
 express()
+  .use(session({
+    secret: process.env.PASS,
+    cookie: { maxAge: 60000 }, 
+    resave: false,
+    saveUninitialized: true
+  }))
   .use(express.static('static'))
   .set('view engine', 'ejs')
   .set('views', 'views')
@@ -70,6 +77,10 @@ function changeData(req,res)
   console.log(input)
   console.log(input.trend)
   if (input.password == process.env.PASS){
+    req.session.authenticated = true
+    console.log("ID", req.sessionID, "is now authenticated")
+  }
+  if (req.session.authenticated === true){
     manips[input.stocks] = {trend: input.trend, ticks: input.ticks}
     console.log(manips)
     if (input.trend == "off" || input.trend == "on"){
