@@ -12,11 +12,11 @@ const sse = new SSE([]);
 require('dotenv').config()
 
 const config = {
-  tickInterval : 800,
+  tickInterval : 1000,
   upTick: 2.5,
   downTick: 8,
   historyLength: 100,
-  maxMultiplier: 20,
+  maxMultiplier: 200,
   dataPointLimit: 100
 }
 
@@ -28,7 +28,8 @@ let data = [
       {name:"egocentrism", close:.8, trend:"off"},
       {name:"love", close:1.1, trend:"up"},
       {name:"oil", close:.9, trend:"up"},
-      {name:"bitcoin", close:1.0, trend:"up"}
+      {name:"bitcoin", close:1.0, trend:"up"},
+      {name:"lsd", close:1.1, trend:"up"}
       ],
     date: moment().add(0,'minutes'),
     avg: '0.67',

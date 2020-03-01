@@ -103,7 +103,7 @@ function drawGraph(data){
       .attr("stroke", "green")
       .attr("stroke-linejoin", "round")
       .attr("stroke-linecap", "round")
-      .attr("stroke-width", (.13 + .3/numStocks)+"em")
+      .attr("stroke-width", (.08 + .3/numStocks)+"em")
       .attr("class", "line")
       .attr("d", line)
   })
